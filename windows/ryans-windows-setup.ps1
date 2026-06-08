@@ -422,6 +422,7 @@ function Get-Catalog {
         [PSCustomObject]@{ Name = "Telegram";                     Category = "Apps";          Type = "App";    Id = "Telegram.TelegramDesktop" }
         [PSCustomObject]@{ Name = "Plex";                         Category = "Apps";          Type = "App";    Id = "Plex.Plex" }
         [PSCustomObject]@{ Name = "Spotify";                      Category = "Apps";          Type = "App";    Id = "Spotify.Spotify" }
+        [PSCustomObject]@{ Name = "File Converter";               Category = "Apps";          Type = "App";    Id = "AdrienAllard.FileConverter" }
 
         # Creative / peripheral software
         [PSCustomObject]@{ Name = "Adobe Creative Cloud";         Category = "Creative";      Type = "App";    Id = "Adobe.CreativeCloud" }
