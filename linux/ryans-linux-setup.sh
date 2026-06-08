@@ -20,6 +20,9 @@ OPT_PLEX=false
 OPT_YES=false
 GIT_NAME=""
 GIT_EMAIL=""
+PASSED=()
+FAILED=()
+SKIPPED=()  # sections skipped because they were already installed
 
 # ─────────────────────────────────────────────────────────────────────────────
 #  Art & UI helpers
@@ -46,10 +49,33 @@ EOF
   echo -e "${NC}"
 }
 
+print_summary() {
+  section "RESULTS"
+  echo
+  for s in "${PASSED[@]+"${PASSED[@]}"}"; do
+    echo -e "    ${GREEN}✓${NC}  $s"
+  done
+  for s in "${SKIPPED[@]+"${SKIPPED[@]}"}"; do
+    echo -e "    ${DIM}–  $s (already installed)${NC}"
+  done
+  if [[ ${#FAILED[@]} -gt 0 ]]; then
+    echo
+    for s in "${FAILED[@]}"; do
+      echo -e "    ${RED}✗${NC}  $s"
+    done
+    echo
+    warn "${#FAILED[@]} section(s) failed. Scroll up to see the errors, then re-run those steps manually."
+  else
+    echo
+    ok "All sections completed successfully."
+  fi
+}
+
 print_done() {
   echo
-  echo -e "${GREEN}${BOLD}"
-  cat <<'EOF'
+  if [[ ${#FAILED[@]} -eq 0 ]]; then
+    echo -e "${GREEN}${BOLD}"
+    cat <<'EOF'
          .---.
         |o_o |
         |:_/ |         ╔═══════════════════════════════╗
@@ -57,8 +83,19 @@ print_done() {
       (|     | )       ║   ✓  All done!                ║
      /'\_   _/`\       ║      Happy hacking, Ryan.     ║
      \___)=(___/       ╚═══════════════════════════════╝
-
 EOF
+  else
+    echo -e "${YELLOW}${BOLD}"
+    cat <<'EOF'
+         .---.
+        |o_o |
+        |:_/ |         ╔═══════════════════════════════╗
+       //   \ \        ║                               ║
+      (|     | )       ║   ⚠  Finished with errors.   ║
+     /'\_   _/`\       ║      Check the summary above. ║
+     \___)=(___/       ╚═══════════════════════════════╝
+EOF
+  fi
   echo -e "${NC}"
 }
 
@@ -113,6 +150,20 @@ snap_install() {
 }
 
 cmd_exists() { command -v "$1" &>/dev/null; }
+
+# Run an install function, catch failures, and keep going.
+# With set -e, calling a function inside `if` suppresses errexit for that call,
+# so a failure returns non-zero instead of killing the script.
+run_section() {
+  local label="$1"; shift
+  if "$@"; then
+    PASSED+=("$label")
+  else
+    echo
+    err "$label failed — skipping, see output above"
+    FAILED+=("$label")
+  fi
+}
 
 # ─────────────────────────────────────────────────────────────────────────────
 #  Arg parsing
@@ -507,18 +558,19 @@ main() {
   confirm "Proceed?" || { echo -e "\n  ${DIM}Aborted.${NC}\n"; exit 0; }
 
   # ── Run ────────────────────────────────────────────────────────────────────
-  install_base
-  install_docker
-  install_tailscale
+  run_section "Base packages"   install_base
+  run_section "Docker"          install_docker
+  run_section "Tailscale"       install_tailscale
 
-  [[ "$MODE" == "desktop" ]]      && install_desktop
-  [[ "$OPT_XRDP" == true ]]       && install_xrdp
-  [[ "$OPT_OPENVPN" == true ]]    && install_openvpn
-  [[ "$OPT_GITLAB_RUNNER" == true ]] && install_gitlab_runner
+  if [[ "$MODE" == "desktop" ]];         then run_section "Desktop apps"   install_desktop;        fi
+  if [[ "$OPT_XRDP"          == true ]]; then run_section "xRDP"           install_xrdp;           fi
+  if [[ "$OPT_OPENVPN"       == true ]]; then run_section "OpenVPN"        install_openvpn;        fi
+  if [[ "$OPT_GITLAB_RUNNER" == true ]]; then run_section "GitLab Runner"  install_gitlab_runner;  fi
 
-  configure_system
-  install_claude_code
+  run_section "System config"   configure_system
+  run_section "Claude Code"     install_claude_code
 
+  print_summary
   print_done
 }
 
