@@ -83,15 +83,11 @@ DB Browser for SQLite, Postman, Windows Subsystem for Linux
 - **SSH keypair generation** — generates a new ed25519 keypair at `~/.ssh/id_ed25519`
   only if one doesn't already exist
 
-## What Is NOT Configured (machine-specific)
+## Post-Install Steps
 
-These are intentionally left out and must be done per-machine:
+A few things install but need a manual login/setup step afterward:
 
-- **Steam / Epic / EA / Ubisoft / Rockstar games** — install whatever you actually play
-- **Tailscale auth** — run `tailscale up` after install to log in
-- **Surfshark / VPN login** — sign in manually
-- **Adobe / Creative Cloud apps** — install the specific apps you need from the CC hub
-- **Drive mappings, printers, peripherals pairing** — per-machine hardware setup
-- **PATH / environment variables for dev runtimes** — winget registers these tools on
-  `PATH` itself; set tool-specific variables (`GOPATH`, `JAVA_HOME`, etc.) by hand if
-  your workflow needs them, since the right values vary per machine
+- **Tailscale** — run `tailscale up` to authenticate this machine
+- **Surfshark** — sign in with your account
+- **Adobe Creative Cloud** — sign in, then install the specific CC apps you need
+  (Creative Cloud itself is just the hub/launcher)
