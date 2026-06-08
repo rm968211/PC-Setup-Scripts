@@ -215,18 +215,28 @@ install_docker() {
     return
   fi
 
-  step "Adding Docker GPG key..."
+  # Detect distro — Docker hosts separate repos for ubuntu vs debian
+  local distro codename
+  distro=$(. /etc/os-release && echo "$ID")
+  codename=$(. /etc/os-release && echo "$VERSION_CODENAME")
+
+  if [[ "$distro" != "ubuntu" && "$distro" != "debian" ]]; then
+    err "Docker auto-install only supports Ubuntu and Debian (detected: $distro)."
+    err "Install Docker manually: https://docs.docker.com/engine/install/"
+    return 1
+  fi
+
+  step "Adding Docker GPG key ($distro/$codename)..."
   apt_install ca-certificates curl gnupg
   sudo install -m 0755 -d /etc/apt/keyrings
-  curl -fsSL https://download.docker.com/linux/ubuntu/gpg \
+  curl -fsSL "https://download.docker.com/linux/${distro}/gpg" \
     | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
   sudo chmod a+r /etc/apt/keyrings/docker.gpg
 
   step "Adding Docker apt repository..."
   echo \
     "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] \
-    https://download.docker.com/linux/ubuntu \
-    $(. /etc/os-release && echo "$VERSION_CODENAME") stable" \
+    https://download.docker.com/linux/${distro} ${codename} stable" \
     | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
   sudo apt-get update -qq
 
