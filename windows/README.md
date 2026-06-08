@@ -1,8 +1,8 @@
 # Windows Setup Script
 
-Windows 10 / 11 setup script for Ryan's machines. Behaves like Ninite — a selection
-window pops up listing every app and config tweak (everything checked by default), you
-uncheck whatever you don't want, and the script installs/configures the rest.
+Windows 10 / 11 setup script for Ryan's machines. Behaves like Ninite — it shows a
+checklist of every app and config tweak (everything checked by default), you toggle off
+whatever you don't want, then it installs/configures the rest.
 
 ## Requirements
 
@@ -29,9 +29,9 @@ uncheck whatever you don't want, and the script installs/configures the rest.
 .\ryans-windows-setup.ps1 -Undo
 ```
 
-If `Out-GridView` isn't available (e.g. Server Core), the script falls back to a
-numbered console checklist (`go` to continue, `all`/`none` to bulk-select, a number to
-toggle a single item).
+The selection screen is a numbered console checklist — every item starts checked
+(`[x]`); type a number to toggle it off/on, `all`/`none` to bulk-select, or `go` once
+you're happy with the list.
 
 ## Flags
 

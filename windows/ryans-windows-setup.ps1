@@ -26,6 +26,17 @@ $script:Failed = @()
 
 function Write-Banner {
     Write-Host ""
+    Write-Host "         .---------------------------." -ForegroundColor Cyan
+    Write-Host "        | .-----------------------. |" -ForegroundColor Cyan
+    Write-Host "        | |  [#][#]      [#][#]   | |" -ForegroundColor Cyan
+    Write-Host "        | |                        | |" -ForegroundColor Cyan
+    Write-Host "        | |  [#][#]      [#][#]   | |" -ForegroundColor Cyan
+    Write-Host "        | '-----------------------' |" -ForegroundColor Cyan
+    Write-Host "        '---------------------------'" -ForegroundColor Cyan
+    Write-Host "              |||         |||" -ForegroundColor Cyan
+    Write-Host "        ._____|||_________|||_____." -ForegroundColor Cyan
+    Write-Host "        '---------------------------'" -ForegroundColor Cyan
+    Write-Host ""
     Write-Host "  +-----------------------------------------------------+" -ForegroundColor Blue
     Write-Host "  |        W I N D O W S   S E T U P   S C R I P T      |" -ForegroundColor Blue
     Write-Host "  |              Windows 10 / 11  *  v1.0               |" -ForegroundColor Blue
@@ -518,18 +529,7 @@ function Select-CatalogItems {
         return $Items
     }
 
-    if (Get-Command Out-GridView -ErrorAction SilentlyContinue) {
-        Write-Info "Opening selection window -- uncheck anything you don't want, then click OK."
-        $rows = $Items | ForEach-Object { [PSCustomObject]@{ Name = $_.Name; Category = $_.Category } }
-        $selectedRows = $rows | Out-GridView -Title "Select items to install / configure (OK = continue, Cancel = select nothing)" -PassThru
-        if (-not $selectedRows) {
-            return @()
-        }
-        $selectedNames = @($selectedRows | ForEach-Object { $_.Name })
-        return @($Items | Where-Object { $selectedNames -contains $_.Name })
-    }
-
-    Write-Warn "Out-GridView is unavailable on this system -- falling back to a console checklist."
+    Write-Info "Everything is checked by default -- toggle off anything you don't want, then 'go'."
     return Show-ConsoleToggleList -Items $Items
 }
 
