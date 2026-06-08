@@ -18,6 +18,8 @@ OPT_OPENVPN=false
 OPT_GITLAB_RUNNER=false
 OPT_PLEX=false
 OPT_YES=false
+GIT_NAME=""
+GIT_EMAIL=""
 
 # ─────────────────────────────────────────────────────────────────────────────
 #  Art & UI helpers
@@ -372,13 +374,31 @@ configure_system() {
   section "SYSTEM CONFIGURATION"
 
   # ── Git ──────────────────────────────────────────────────────────────────
-  step "Configuring git globals..."
-  git config --global user.name        "rm968211"
-  git config --global user.email       "rdmiers@gmail.com"
-  git config --global core.editor      "code --wait"
-  git config --global init.defaultBranch main
-  git config --global pull.rebase      false
-  ok "Git configured"
+  if [[ -z "$GIT_NAME" || -z "$GIT_EMAIL" ]]; then
+    if [[ "$OPT_YES" == true ]]; then
+      warn "Skipping git config — rerun without -y or set manually:"
+      info "  git config --global user.name  \"Your Name\""
+      info "  git config --global user.email \"you@example.com\""
+    else
+      section "GIT CONFIGURATION"
+      echo
+      echo -en "    ${BLUE}?${NC}  Git name:   "
+      read -r GIT_NAME
+      echo -en "    ${BLUE}?${NC}  Git email:  "
+      read -r GIT_EMAIL
+      echo
+    fi
+  fi
+
+  if [[ -n "$GIT_NAME" && -n "$GIT_EMAIL" ]]; then
+    step "Configuring git globals..."
+    git config --global user.name          "$GIT_NAME"
+    git config --global user.email         "$GIT_EMAIL"
+    git config --global core.editor        "code --wait"
+    git config --global init.defaultBranch main
+    git config --global pull.rebase        false
+    ok "Git configured for ${BOLD}${GIT_NAME}${NC} <${GIT_EMAIL}>"
+  fi
 
   # ── PATH entries ─────────────────────────────────────────────────────────
   step "Adding PATH entries to ~/.bashrc..."
@@ -436,6 +456,13 @@ run_wizard() {
     if ask_yn "Install Plex Desktop?";                then OPT_PLEX=true;           fi
   fi
 
+  echo
+  section "GIT CONFIGURATION"
+  echo
+  echo -en "    ${BLUE}?${NC}  Git name:   "
+  read -r GIT_NAME
+  echo -en "    ${BLUE}?${NC}  Git email:  "
+  read -r GIT_EMAIL
   echo
 }
 

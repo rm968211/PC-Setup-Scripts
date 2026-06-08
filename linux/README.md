@@ -103,13 +103,15 @@ chmod +x ryans-linux-setup.sh
 
 | Setting | Value |
 |---|---|
-| `git user.name` | `rm968211` |
-| `git user.email` | `rdmiers@gmail.com` |
+| `git user.name` | prompted at runtime |
+| `git user.email` | prompted at runtime |
 | `git core.editor` | `code --wait` |
 | `git init.defaultBranch` | `main` |
 | `git pull.rebase` | `false` |
 | `~/.bashrc` PATH | Adds `/usr/local/go/bin` and `~/.local/bin` |
 | UFW | Enabled — deny inbound, allow outbound, SSH open |
+
+> Note: if `-y` is passed and no name/email are provided, git config is skipped with instructions to set it manually.
 
 ## What Is NOT Configured (machine-specific)
 
